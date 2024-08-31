@@ -6,6 +6,8 @@ REGISTRY ?= agoraio/
 
 build: build-agents build-server
 
+run: run-server
+
 build-agents:
 	@echo ">> build agents"
 	cd agents && ./scripts/install_deps_and_build.sh linux x64 && mv bin/main bin/worker

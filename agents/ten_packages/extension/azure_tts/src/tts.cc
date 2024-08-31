@@ -94,6 +94,48 @@ void AzureTTS::Flush() noexcept {
   }
 }
 
+// predefined SSML template
+const std::string ssmlTemplateStart = R"(
+<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xmlns:mstts="http://www.w3.org/2001/mstts" xml:lang="en-US">
+  <voice name="en-US-AshleyNeural">
+)";
+const std::string ssmlTemplateEnd = R"(
+  </voice>
+</speak>
+)";
+
+// generate SSML content
+std::string generateSsml(const std::string& content)
+{
+    return ssmlTemplateStart + content + ssmlTemplateEnd;
+}
+
+// predefined SSML template with cheerful as default
+const std::string ssmlDefaultTemplateStart = R"(
+<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xmlns:mstts="http://www.w3.org/2001/mstts" xml:lang="en-US">
+  <voice name="en-US-AshleyNeural">
+    <prosody rate="+11%" pitch="+13%" volume="+10%">
+      <mstts:express-as style="cheerful" styledegree="2">
+)";
+
+const std::string ssmlDefaultTemplateEnd = R"(
+      </mstts:express-as>
+    </prosody>
+  </voice>
+</speak>
+)";
+
+// generate SSML content with cheerful as default
+std::string generateDefaultSsml(const std::string& content)
+{
+    std::string result;
+    result.reserve(ssmlDefaultTemplateStart.size() + content.size() + ssmlDefaultTemplateEnd.size());
+    result.append(ssmlDefaultTemplateStart);
+    result.append(content);
+    result.append(ssmlDefaultTemplateEnd);
+    return result;
+}
+
 void AzureTTS::SpeechText(const std::string& text, int64_t text_recv_ts) {
   auto start_time = time_since_epoch_in_us();
   AZURE_TTS_LOGD("task starting for text: [%s], text_recv_ts: %" PRId64, text.c_str(), text_recv_ts);
@@ -108,8 +150,12 @@ void AzureTTS::SpeechText(const std::string& text, int64_t text_recv_ts) {
 
   using namespace Microsoft::CognitiveServices;
 
-  // async mode
-  auto result = speech_synthesizer_->StartSpeakingTextAsync(text).get();
+  // if received plain text, generate default SSML content
+  std::string ssml = generateDefaultSsml(text);
+  
+  // Use StartSpeakingSsmlAsync
+  auto result = speech_synthesizer_->StartSpeakingSsmlAsync(ssml).get();
+
   if (result->Reason == Speech::ResultReason::Canceled) {
     auto cancellation = Speech::SpeechSynthesisCancellationDetails::FromResult(result);
     AZURE_TTS_LOGW("task canceled for text: [%s], text_recv_ts: %" PRId64 ", reason: %d",

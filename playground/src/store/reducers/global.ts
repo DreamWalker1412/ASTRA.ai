@@ -20,9 +20,9 @@ const getInitialState = (): InitialState => {
     roomConnected: false,
     agentConnected: false,
     language: "en-US",
-    voiceType: "male",
+    voiceType: "female",
     chatItems: [],
-    graphName: "camera.va.openai.azure"
+    graphName: "va.openai.azure"
   }
 }
 
