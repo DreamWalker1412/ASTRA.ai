@@ -46,7 +46,7 @@ class azure_tts_extension_t : public ten::extension_t {
     TEN_ASSERT(ten_proxy_ != nullptr, "ten_proxy should not be nullptr");
 
     // pcm parameters
-    auto sample_rate = 16000;
+    auto sample_rate = 44100;
     auto samples_per_10ms = sample_rate / 100;
     auto channel = 1;
     auto bytes_per_sample = 2;
@@ -84,7 +84,7 @@ class azure_tts_extension_t : public ten::extension_t {
         key,
         region,
         voice_name,
-        Microsoft::CognitiveServices::Speech::SpeechSynthesisOutputFormat::Raw16Khz16BitMonoPcm,
+        Microsoft::CognitiveServices::Speech::SpeechSynthesisOutputFormat::Raw44100Hz16BitMonoPcm,
         pcm_frame_size,
         std::move(pcm_callback));
     TEN_ASSERT(azure_tts_ != nullptr, "azure_tts should not be nullptr");
