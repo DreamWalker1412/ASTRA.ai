@@ -383,11 +383,14 @@ func (s *HttpServer) processProperty(req *StartReq) (propertyJsonFile string, lo
 
 	propertyJson := string(content)
 
+	// Get the default graph name
+	defaultGraphName := "va.openai.azure"
+
 	// Get graph name
 	graphName := req.GraphName
 	if graphName == "" {
-		slog.Error("graph_name is mandatory", "requestId", req.RequestId, logTag)
-		return
+		graphName = defaultGraphName
+		slog.Info("graph_name is default", "requestId", req.RequestId, logTag)
 	}
 
 	// Generate token
@@ -449,7 +452,7 @@ func (s *HttpServer) processProperty(req *StartReq) (propertyJsonFile string, lo
 	channelNameMd5 := gmd5.MustEncryptString(req.ChannelName)
 	ts := time.Now().UnixNano()
 	propertyJsonFile = fmt.Sprintf("%s/property-%s-%d.json", s.config.LogPath, channelNameMd5, ts)
-	logFile = fmt.Sprintf("%s/app-%s-%d.log", s.config.LogPath, channelNameMd5, ts)
+	logFile = fmt.Sprintf("/app/logs/app.log")
 	os.WriteFile(propertyJsonFile, []byte(propertyJson), 0644)
 
 	return
